@@ -28,47 +28,38 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-This is the demo cli client accessing the API provided.
+This is a command library that issues commands to flatpak and returns 
+the results.
 """
 
-import argparse
+import logging
+import subprocess
 
-import pyflatpak
-import pyflatpak.command as command
+class Command():
+    """
+    This is a command library that issues commands to flatpak and returns 
+    the results.
 
-def main(options=None):
-
-    parser = argparse.ArgumentParser(
-        description='A demo application for the pyflatpak library'
-    )
-
-    subparsers = parser.add_subparsers(
-        help='The flatpak command to run',
-        dest='command',
-        metavar='COMMAND'
-    )
-
-    parser_remotes = subparsers.add_parser(
-        'remotes',
-        help='Manage/list flatpak remotes.'
-    )
-
-    parser_version = subparsers.add_parser(
-        'version',
-        help='Print the library version.'
-    )
-
-    args = parser.parse_args()
-    if args.command == 'version':
-        print('pyflatpak version {}'.format(pyflatpak.VERSION))
-        exit(0)
+    arguments:
+        command - The command to run.
     
-    if args.command:
-        pyflatpak.run(args)
-    else:
-        print('pyflatpak version {}'.format(pyflatpak.VERSION))
-        parser.print_help()
-        exit(0)
+    Returns:
+        The output of the command provided, or an error.
+    """
 
-if __name__ == '__main__':
-    main()
+    def __init__(self, command):
+        self.log = logging.getLogger('pyflatpak.Command')
+        self.log.debug('Loaded!')
+        self.command = command
+        self.log.info('Got command, {}'.format(self.command))
+    
+    def run(self):
+        """
+        Runs COMMAND and returns the output completed process.
+        """
+        this_command = ['flatpak'] + self.command
+        complete_command = subprocess.run(
+            this_command,
+            check=True,
+        )
+        return complete_command

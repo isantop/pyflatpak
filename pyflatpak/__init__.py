@@ -30,3 +30,93 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 This is the demo cli client implementing the API provided.
 """
+
+import logging
+import logging.handlers as handlers
+
+from . import remotes as Remotes
+from . import command as Command
+
+VERSION = '0.0.0'
+
+SYSTEMD_SUPPORT = False
+try:
+    from systemd.journal import JournalHandler
+    SYSTEMD_SUPPORT = True
+
+except ImportError:
+    pass
+
+log_file_path = 'pyflatpak.log'
+
+level = {
+    0 : logging.WARNING,
+    1 : logging.INFO,
+    2 : logging.DEBUG,
+}
+
+console_level = level[0]
+file_level = level[0]
+
+stream_fmt = logging.Formatter(
+    '%(name)-21s: %(message)s')
+file_fmt = logging.Formatter(
+    '%(asctime)s - %(name)-21s: %(levelname)-8s %(message)s')
+log = logging.getLogger('pyflatpak')
+
+console_log = logging.StreamHandler()
+console_log.setFormatter(stream_fmt)
+console_log.setLevel(console_level)
+
+file_log = handlers.RotatingFileHandler(
+    log_file_path, maxBytes=(1048576*5), backupCount=5)
+file_log.setFormatter(file_fmt)
+file_log.setLevel(file_level)
+
+log.addHandler(console_log)
+log.addHandler(file_log)
+
+if SYSTEMD_SUPPORT:
+    journald_log = JournalHandler()
+    journald_log.setLevel(file_level)
+    journald_log.setFormatter(stream_fmt)
+    log.addHandler(journald_log)
+
+log.setLevel(logging.DEBUG)
+
+def print_dict(dict):
+    """
+    Turn a dict into a str containing a pretty, printable table.
+    """
+    string = ""
+    for remote in dict:
+        for key in dict[remote]:
+            string = '{}{}\t'.format(string, dict[remote][key])
+        string = "{}\n".format(string)
+    return string.strip()
+
+""" Actions to take. """
+
+def remotes(args):
+    Rems = Remotes.Remotes()
+    log.info('Remotes currently configured:')
+    repos = Rems.get_remotes()
+    p_remotes = print_dict(repos)
+    print("Name\tTitle\tURL\tOption")
+    print(p_remotes)
+
+def version(args):
+    print('pyflatpak version: {}'.format(VERSION))
+
+def run(args):
+    action = {
+        'remotes': remotes,
+        'version': version,
+    }
+
+    if args.command:
+        log.debug('Got command: %s' % args.command)
+        action[args.command](args)
+    else:
+        version(args)
+
