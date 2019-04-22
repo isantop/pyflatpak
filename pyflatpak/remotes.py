@@ -35,7 +35,10 @@ from configparser import ConfigParser
 import logging
 from os import path
 
-import pyflatpak.command 
+import pyflatpak.command as command
+
+class NoRemoteExistsError(Exception):
+    pass
 
 class Remotes():
     """
@@ -80,4 +83,28 @@ class Remotes():
                 remotes[remote_name]['url'] = remote_url
                 remotes[remote_name]['option'] = 'system'
         
+        self.remotes = remotes
         return remotes
+    
+    def delete_remote(self, remote_name):
+        """
+        Delete a configured remote.
+        """
+        if remote_name not in self.remotes:
+            self.log.exception('Remote %s not configured!' % remote_name)
+            raise NoRemoteExistsError
+        
+        rm_command = command.Command(['remote-delete', remote_name])
+        try:
+            rm_command.run()
+        except subprocess.CalledProcessError:
+            raise NoRemoteExistsError
+
+        self.get_remotes()
+    
+    def add_remote(self, remote_name, remote_url):
+        add_command = command.Command(
+            ['remote-add', '--if-not-exists', remote_name, remote_url]
+        )
+        add_command.run()
+        

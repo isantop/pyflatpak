@@ -84,39 +84,5 @@ if SYSTEMD_SUPPORT:
 
 log.setLevel(logging.DEBUG)
 
-def print_dict(dict):
-    """
-    Turn a dict into a str containing a pretty, printable table.
-    """
-    string = ""
-    for remote in dict:
-        for key in dict[remote]:
-            string = '{}{}\t'.format(string, dict[remote][key])
-        string = "{}\n".format(string)
-    return string.strip()
-
-""" Actions to take. """
-
-def remotes(args):
-    Rems = Remotes.Remotes()
-    log.info('Remotes currently configured:')
-    repos = Rems.get_remotes()
-    p_remotes = print_dict(repos)
-    print("Name\tTitle\tURL\tOption")
-    print(p_remotes)
-
-def version(args):
-    print('pyflatpak version: {}'.format(VERSION))
-
-def run(args):
-    action = {
-        'remotes': remotes,
-        'version': version,
-    }
-
-    if args.command:
-        log.debug('Got command: %s' % args.command)
-        action[args.command](args)
-    else:
-        version(args)
-
+remotes = Remotes.Remotes()
+remotes.get_remotes()
