@@ -30,12 +30,3 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 This is the demo cli client implementing the API provided.
 """
-
-def main(options=None):
-    print(
-        'Yay! This application works!',
-        'It\'s also completely useless right now.'
-    )
-
-if __name__ == '__main__':
-    main()
