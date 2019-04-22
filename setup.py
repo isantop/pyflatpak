@@ -89,14 +89,14 @@ class Test(Command):
             run_pyflakes3()
 
 setup(
-    name='python3-flatpak',
+    name='pyflatpak',
     version='0.0.0',
     description='Basic python wrapper for managing flatpak',
-    url='https://github.com/isantop/python3-flatpak',
+    url='https://github.com/isantop/pyflatpak',
     author='Ian Santopietro',
     author_email='isantop@gmail.com',
     license='BSD-2',
-    packages=['python3-flatpak'],
-    scripts=['bin/python3-flatpak'],
+    packages=['pyflatpak'],
+    scripts=['bin/pyflatpak'],
     cmdclass={'test': Test},
 )
