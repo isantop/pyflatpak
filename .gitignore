@@ -10,6 +10,7 @@ __pycache__/
 *.so
 
 # Distribution / packaging
+.pybuild
 .Python
 build/
 develop-eggs/
