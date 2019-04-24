@@ -86,3 +86,7 @@ log.setLevel(logging.DEBUG)
 
 remotes = Remotes.Remotes()
 remotes.get_remotes()
+
+def validate(url):
+    valid_fp_url = url.endswith('.flatpakrepo')
+    return valid_fp_url

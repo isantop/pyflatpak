@@ -90,13 +90,12 @@ class Test(Command):
 
 setup(
     name='pyflatpak',
-    version='0.0.0',
+    version='0.0.1',
     description='Basic python wrapper for managing flatpak',
     url='https://github.com/isantop/pyflatpak',
     author='Ian Santopietro',
     author_email='isantop@gmail.com',
     license='BSD-2',
     packages=['pyflatpak'],
-    scripts=['bin/pyflatpak'],
     cmdclass={'test': Test},
 )

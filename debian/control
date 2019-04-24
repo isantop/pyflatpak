@@ -1,0 +1,17 @@
+Source: python3-pyflatpak
+Maintainer: Ian Santopietro <isantop@gmail.com>
+Section: python
+Priority: optional
+Build-Depends: python3-all, 
+               debhelper (>= 10)
+Standards-Version: 4.3.0
+
+Package: python3-pyflatpak
+Architecture: all
+Depends: ${misc:Depends}, 
+         ${python3:Depends}, 
+         util-linux,
+         flatpak
+Description: Simple Python Wrapper for adding and removing Flatpak remotes
+ PyFlatpak is a simple wrapper that allows you to add or remove Flatpak remotes
+ from within python applications and scripts. 

@@ -89,22 +89,30 @@ class Remotes():
     def delete_remote(self, remote_name):
         """
         Delete a configured remote.
+
+        Argument:
+            remote_name: The 'name' of the remote to delete
         """
+        self.get_remotes()
         if remote_name not in self.remotes:
             self.log.exception('Remote %s not configured!' % remote_name)
             raise NoRemoteExistsError
         
-        rm_command = command.Command(['remote-delete', remote_name])
-        try:
-            rm_command.run()
-        except subprocess.CalledProcessError:
-            raise NoRemoteExistsError
-
+        rm_command = command.Command(['remote-delete', '--force', remote_name])
+        rm_command.run()
         self.get_remotes()
     
     def add_remote(self, remote_name, remote_url):
+        """
+        Add a new remote.
+
+        Arguments:
+            remote_name: the name to use for the new remote
+            remote_url: the URL of the .flatpakrepo file
+        """
         add_command = command.Command(
             ['remote-add', '--if-not-exists', remote_name, remote_url]
         )
         add_command.run()
+        self.get_remotes()
         
