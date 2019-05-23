@@ -71,12 +71,15 @@ class Remotes():
             config.read_file(config_file)
         raw_config =  config._sections
         for section in raw_config:
-            if 'core' not in section:
+            if 'remote' in section:
                 remote_name = section.split('"')[1]
                 remotes[remote_name] = {}
                 remote_title = remote_name
-                if raw_config[section]['xa.title-is-set'] == 'true':
-                    remote_title = raw_config[section]['xa.title']
+                try:
+                    if bool(raw_config[section]['xa.title-is-set']):
+                        remote_title = raw_config[section]['xa.title']
+                except KeyError:
+                    pass
                 remote_url = raw_config[section]['url']
                 remotes[remote_name]['name'] = remote_name
                 remotes[remote_name]['title'] = remote_title
