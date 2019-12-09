@@ -33,7 +33,8 @@ Queries information about flatpak remotes
 
 from configparser import ConfigParser
 import logging
-from os import path
+import os
+import pathlib
 
 import pyflatpak.command as command
 
@@ -49,31 +50,36 @@ class Remotes():
     """
 
     fp_sys_config_filepath = '/var/lib/flatpak/'
-    fp_user_config_filepath = '~/.local/share/flatpak'
+    fp_user_config_filepath = os.path.join(
+        pathlib.Path.home(),
+        '.local/share/flatpak'
+    )
     fp_config_filename = 'repo/config'
 
     def __init__(self):
         self.log = logging.getLogger('pyflatpak.Remotes')
         self.log.debug('Loaded!')
+        self.remotes = {}
+        self.get_remotes()
+    
+    def get_remote(self, loc='~/.local/share/flatpak', option='user'):
+        """
+        Get a remote, given the LOC config path
+        """
 
-    def get_remotes(self):
-        """
-        Gets a dict of the current remotes, which have attributes.
-        """
+        current_remotes = {}
         config = ConfigParser()
-        remotes = {}
-        fp_sys_config = path.join(
-            self.fp_sys_config_filepath,
-            self.fp_config_filename
-        )
-        self.log.debug(fp_sys_config)
-        with open(fp_sys_config) as config_file:
+        fp_config = os.path.join(loc, self.fp_config_filename)
+        self.log.debug('Looking for %s remotes in %s', option, fp_config)
+
+        with open(fp_config) as config_file:
             config.read_file(config_file)
-        raw_config =  config._sections
+        raw_config = config._sections
+
         for section in raw_config:
             if 'remote' in section:
                 remote_name = section.split('"')[1]
-                remotes[remote_name] = {}
+                current_remotes[remote_name] = {}
                 remote_title = remote_name
                 try:
                     if bool(raw_config[section]['xa.title-is-set']):
@@ -81,13 +87,35 @@ class Remotes():
                 except KeyError:
                     pass
                 remote_url = raw_config[section]['url']
-                remotes[remote_name]['name'] = remote_name
-                remotes[remote_name]['title'] = remote_title
-                remotes[remote_name]['url'] = remote_url
-                remotes[remote_name]['option'] = 'system'
+                current_remotes[remote_name]['name'] = remote_name
+                current_remotes[remote_name]['title'] = remote_title
+                current_remotes[remote_name]['url'] = remote_url
+                current_remotes[remote_name]['option'] = option
         
-        self.remotes = remotes
-        return remotes
+        return (option, current_remotes)
+    
+    def get_remotes(self):
+        """
+        Update system and user remotes
+        """
+        try:
+            self.system_remotes = self.get_remote(
+                loc=self.fp_sys_config_filepath, 
+                option='system'
+            )[1]
+        except FileNotFoundError:
+            self.system_remotes = {}
+        
+        try:
+            self.user_remotes = self.get_remote(
+                loc=self.fp_user_config_filepath,
+                option='user'
+            )[1]
+        except FileNotFoundError:
+            self.user_remotes = {}
+        self.remotes['system'] = self.system_remotes
+        self.remotes['user'] = self.user_remotes
+
     
     def delete_remote(self, remote_name):
         """

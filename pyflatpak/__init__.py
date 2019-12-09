@@ -74,7 +74,7 @@ file_log.setFormatter(file_fmt)
 file_log.setLevel(file_level)
 
 log.addHandler(console_log)
-log.addHandler(file_log)
+#log.addHandler(file_log)
 
 if SYSTEMD_SUPPORT:
     journald_log = JournalHandler()
@@ -85,7 +85,6 @@ if SYSTEMD_SUPPORT:
 log.setLevel(logging.DEBUG)
 
 remotes = Remotes.Remotes()
-remotes.get_remotes()
 
 def validate(url):
     valid_fp_url = url.endswith('.flatpakrepo')
