@@ -125,7 +125,7 @@ class Remotes():
             remote_name: The 'name' of the remote to delete
         """
         self.get_remotes()
-        if remote_name not in self.remotes:
+        if remote_name not in self.user_remotes and remote_name not in self.system_remotes:
             self.log.exception('Remote %s not configured!' % remote_name)
             raise NoRemoteExistsError
         
@@ -133,7 +133,7 @@ class Remotes():
         rm_command.run()
         self.get_remotes()
     
-    def add_remote(self, remote_name, remote_url):
+    def add_remote(self, remote_name, remote_url, user=True):
         """
         Add a new remote.
 
@@ -141,9 +141,12 @@ class Remotes():
             remote_name: the name to use for the new remote
             remote_url: the URL of the .flatpakrepo file
         """
-        add_command = command.Command(
-            ['remote-add', '--if-not-exists', remote_name, remote_url]
-        )
+        cmd = ['remote-add', '--if-not-exists', remote_name, remote_url]
+
+        if user:
+            cmd.append("--user")
+
+        add_command = command.Command(cmd)
         add_command.run()
         self.get_remotes()
         
