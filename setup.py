@@ -90,7 +90,7 @@ class Test(Command):
 
 setup(
     name='pyflatpak',
-    version='0.0.2',
+    version='0.1.0',
     description='Basic python wrapper for managing flatpak',
     url='https://github.com/isantop/pyflatpak',
     author='Ian Santopietro',

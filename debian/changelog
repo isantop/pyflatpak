@@ -1,3 +1,11 @@
+python3-pyflatpak (0.1.0) eoan; urgency=medium
+
+  * Better parsing of the ConfigParser object
+  * Now supports an 'about' field for each remote
+  * Fixed title support
+
+ -- Ian Santopietro <ian@akira.local>  Wed, 11 Dec 2019 14:24:37 -0700
+
 python3-pyflatpak (0.0.2) eoan; urgency=medium
 
   * Updates to work with both system and user remotes

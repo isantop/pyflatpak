@@ -74,23 +74,36 @@ class Remotes():
 
         with open(fp_config) as config_file:
             config.read_file(config_file)
-        raw_config = config._sections
-
-        for section in raw_config:
+        
+        for section in config.sections():
             if 'remote' in section:
                 remote_name = section.split('"')[1]
                 current_remotes[remote_name] = {}
-                remote_title = remote_name
+                
                 try:
-                    if bool(raw_config[section]['xa.title-is-set']):
-                        remote_title = raw_config[section]['xa.title']
+                    remote_title = config[section]['xa.title']
                 except KeyError:
-                    pass
-                remote_url = raw_config[section]['url']
+                    remote_title = remote_name
+                
+                # This complicated block tries to set the about field to the
+                # comment section first. If that's not present, it falls back 
+                # on the description field. If that too is not present, then
+                # we fall back on using the name field.
+                try:
+                    remote_about = config[section]['xa.comment']
+                except KeyError:
+                    try:
+                        remote_about = config[section]['xa.description']
+                    except KeyError:
+                        remote_about = remote_name
+
+                remote_url = config[section]['url']
+
                 current_remotes[remote_name]['name'] = remote_name
                 current_remotes[remote_name]['title'] = remote_title
                 current_remotes[remote_name]['url'] = remote_url
                 current_remotes[remote_name]['option'] = option
+                current_remotes[remote_name]['about'] = remote_about
         
         return (option, current_remotes)
     
