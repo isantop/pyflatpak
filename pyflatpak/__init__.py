@@ -47,7 +47,7 @@ try:
 except ImportError:
     pass
 
-log_file_path = 'pyflatpak.log'
+log_file_path = '/tmp/pyflatpak.log'
 
 level = {
     0 : logging.WARNING,
