@@ -1,10 +1,29 @@
+python3-pyflatpak (0.4.0) eoan; urgency=medium
+
+  * Bump version to correct issues with automatic versioning
+
+ -- Ian Santopiero <ian@pop-os.localdomain>  Wed, 29 Jan 2020 11:59:56 -0700
+
+python3-pyflatpak (0.3.2) eoan; urgency=medium
+
+  * Version bump
+
+ -- Ian Santopiero <ian@pop-os.localdomain>  Wed, 29 Jan 2020 11:48:24 -0700
+
+python3-pyflatpak (0.3.0) eoan; urgency=medium
+
+  * Fetches Icons and Hompage of repos if available
+
+ -- Ian Santopiero <ian@pop-os.localdomain>  Wed, 29 Jan 2020 11:43:04 -0700
+
 python3-pyflatpak (0.1.0) eoan; urgency=medium
 
+  [ Ian Santopietro ]
   * Better parsing of the ConfigParser object
   * Now supports an 'about' field for each remote
   * Fixed title support
 
- -- Ian Santopietro <ian@akira.local>  Wed, 11 Dec 2019 14:24:37 -0700
+ -- Ian Santopiero <ian@pop-os.localdomain>  Wed, 29 Jan 2020 11:35:14 -0700
 
 python3-pyflatpak (0.0.2) eoan; urgency=medium
 

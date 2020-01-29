@@ -39,6 +39,9 @@ DIRS = [
     'bin'
 ]
 
+version = {}
+with open ('pyflatpak/__version__.py') as fp:
+    exec(fp.read(), version)
 
 def run_under_same_interpreter(opname, script, args):
     """Re-run with the same as current interpreter."""
@@ -67,7 +70,73 @@ def run_pyflakes3():
     args = [os.path.join(TREE, name) for name in names]
     run_under_same_interpreter('flakes', script, args)
 
+class Release(Command):
+    """ Generate a release and push it to git."""
+    description = "Generate a release and push it to git."
 
+    user_options = [
+        ('dry-run', None, 'Skip the actual release and do a dry run instead.'),
+        ('prerelease', None, 'Release this version as a pre-release.'),
+        ('skip-deb', None, 'Skip doing a debian update for this release.'),
+        ('force-version=', None, 'Force the version to update to the given value.')
+    ]
+
+    def initialize_options(self):
+        self.dry_run = False
+        self.prerelease = False
+        self.skip_deb = False
+        self.force_version = None
+    
+    def finalize_options(self):
+        if self.force_version:
+            if not isinstance(self.force_version, str):
+                raise Exception('Please specify the test version to release')
+
+    def run(self):
+        command = ['npx', 'standard-version']
+        if self.dry_run:
+            command.append('--dry-run')
+        if self.prerelease:
+            command.append('--prerelease')
+        if self.force_version:
+            # See https://github.com/conventional-changelog/standard-version#release-as-a-target-type-imperatively-npm-version-like
+            command.append('--release-as')
+            command.append(self.force_version)
+        print(command)
+        subprocess.run(command)
+        if not self.dry_run:
+            subprocess.run(
+                ['git', 'push', '--follow-tags']
+            )
+        
+        if not self.skip_deb:
+            deb_command = ['dch', '-v']
+            version = {}
+            with open ('pyflatpak/__version__.py') as fp:
+                exec(fp.read(), version)
+
+            if self.force_version:
+                deb_command.append(self.force_version)
+            else:
+                deb_command.append(version['__version__'])
+                
+            deb_r_command = ['dch', '-r', '""']
+            print(deb_command)
+            print(deb_r_command)
+            if not self.dry_run:
+                subprocess.run(deb_command)
+                subprocess.run(deb_r_command)
+            
+            deb_git_command = ['git', 'commit', '-a', '-m']
+            if self.force_version:
+                deb_git_command.append(self.force_version)
+            else:
+                v = version['__version__']
+                deb_git_command.append(f'chore(deb): Deb Release {v}')
+            
+            print(deb_git_command)
+            if not self.dry_run:
+                subprocess.run(deb_git_command)
 
 class Test(Command):
     """Basic sanity checks on our code."""
@@ -90,12 +159,15 @@ class Test(Command):
 
 setup(
     name='pyflatpak',
-    version='0.1.0',
+    version=version['__version__'],
     description='Basic python wrapper for managing flatpak',
     url='https://github.com/isantop/pyflatpak',
     author='Ian Santopietro',
     author_email='isantop@gmail.com',
     license='BSD-2',
     packages=['pyflatpak'],
-    cmdclass={'test': Test},
+    cmdclass={
+        'test': Test,
+        'release': Release
+    },
 )

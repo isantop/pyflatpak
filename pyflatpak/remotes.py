@@ -35,11 +35,22 @@ from configparser import ConfigParser
 import logging
 import os
 import pathlib
+from subprocess import CalledProcessError
 
 import pyflatpak.command as command
 
 class NoRemoteExistsError(Exception):
     pass
+
+class AddRemoteError(Exception):
+    def __init__(self, msg, code=1):
+        self.msg = msg
+        self.code = code
+
+class DeleteRemoteError(Exception):
+    def __init__(self, msg, code=1):
+        self.msg = msg
+        self.code = code
 
 class Remotes():
     """
@@ -96,6 +107,16 @@ class Remotes():
                         remote_about = config[section]['xa.description']
                     except KeyError:
                         remote_about = remote_name
+                
+                try:
+                    icon = config[section]['xa.icon']
+                except KeyError:
+                    icon = None
+
+                try:
+                    remote_homepage = config[section]['xa.homepage']
+                except KeyError:
+                    remote_homepage = None
 
                 remote_url = config[section]['url']
 
@@ -104,6 +125,8 @@ class Remotes():
                 current_remotes[remote_name]['url'] = remote_url
                 current_remotes[remote_name]['option'] = option
                 current_remotes[remote_name]['about'] = remote_about
+                current_remotes[remote_name]['icon'] = icon
+                current_remotes[remote_name]['hompage'] = remote_homepage
         
         return (option, current_remotes)
     
@@ -143,7 +166,12 @@ class Remotes():
             raise NoRemoteExistsError
         
         rm_command = command.Command(['remote-delete', '--force', remote_name])
-        rm_command.run()
+        try:
+            rm_command.run()
+        except CalledProcessError:
+            raise DeleteRemoteError(
+                f'Could not delete {remote_name}.'
+            )
         self.get_remotes()
     
     def add_remote(self, remote_name, remote_url, user=True):
@@ -160,6 +188,11 @@ class Remotes():
             cmd.append("--user")
 
         add_command = command.Command(cmd)
-        add_command.run()
+        try:
+            add_command.run()
+        except CalledProcessError:
+            raise AddRemoteError(
+                f'Could not add remote {remote_name} from {remote_url}.'
+            )
         self.get_remotes()
         
